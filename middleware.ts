@@ -1,23 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-
-/**
- * Route protection matrix:
- *
- * PUBLIC  — anyone, no auth required
- *   /                home page
- *   /sign-in         Clerk sign-in
- *   /sign-up         Clerk sign-up
- *   /assessment      assessment is publicly accessible
- *                    (email gate fires INSIDE the app after completion,
- *                     not at the route level)
- *   /api/webhooks/*  Clerk + ConvertKit webhooks
- *
- * PROTECTED — requires Clerk session
- *   /dashboard       user dashboard
- *   /results/*       detailed results (requires account)
- *   /courses/*       course content
- *   /admin/*         Randy-only admin panel
- */
+import { NextResponse } from "next/server";
 
 const isPublicRoute = createRouteMatcher([
   "/",
@@ -27,10 +9,16 @@ const isPublicRoute = createRouteMatcher([
   "/api/webhooks(.*)",
 ]);
 
-export default clerkMiddleware((auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
   if (!isPublicRoute(req)) {
-    auth().protect();
+    const { userId } = await auth();
+    if (!userId) {
+      const signInUrl = new URL("/sign-in", req.url);
+      signInUrl.searchParams.set("redirect_url", req.url);
+      return NextResponse.redirect(signInUrl);
+    }
   }
+  return NextResponse.next();
 });
 
 export const config = {
