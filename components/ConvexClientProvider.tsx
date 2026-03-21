@@ -1,11 +1,40 @@
 "use client";
-import { ConvexReactClient } from "convex/react";
+import { ConvexReactClient, ConvexProvider } from "convex/react";
 import { useAuth } from "@clerk/nextjs";
-import { ConvexProviderWithClerk } from "convex/react-clerk";
+import { useEffect, useCallback } from "react";
 
 const convex = new ConvexReactClient(
   process.env.NEXT_PUBLIC_CONVEX_URL as string
 );
+
+function ClerkConvexAdapter({ children }: { children: React.ReactNode }) {
+  const { getToken, isSignedIn } = useAuth();
+
+  const fetchToken = useCallback(
+    async ({ forceRefreshToken }: { forceRefreshToken: boolean }) => {
+      try {
+        const token = await getToken({
+          template: "convex",
+          skipCache: forceRefreshToken,
+        });
+        return token ?? null;
+      } catch {
+        return null;
+      }
+    },
+    [getToken]
+  );
+
+  useEffect(() => {
+    if (isSignedIn) {
+      convex.setAuth(fetchToken);
+    } else {
+      convex.clearAuth();
+    }
+  }, [isSignedIn, fetchToken]);
+
+  return <>{children}</>;
+}
 
 export function ConvexClientProvider({
   children,
@@ -13,9 +42,8 @@ export function ConvexClientProvider({
   children: React.ReactNode;
 }) {
   return (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    <ConvexProviderWithClerk client={convex} useAuth={useAuth as any}>
-      {children}
-    </ConvexProviderWithClerk>
+    <ConvexProvider client={convex}>
+      <ClerkConvexAdapter>{children}</ClerkConvexAdapter>
+    </ConvexProvider>
   );
 }
