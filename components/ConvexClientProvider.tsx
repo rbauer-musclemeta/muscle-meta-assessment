@@ -3,11 +3,18 @@ import { ConvexReactClient } from "convex/react";
 import { useAuth } from "@clerk/nextjs";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 
-const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL as string);
+const convex = new ConvexReactClient(
+  process.env.NEXT_PUBLIC_CONVEX_URL as string
+);
 
-export function ConvexClientProvider({ children }: { children: React.ReactNode }) {
+export function ConvexClientProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    <ConvexProviderWithClerk client={convex} useAuth={useAuth as any}>
       {children}
     </ConvexProviderWithClerk>
   );
