@@ -199,3 +199,29 @@ export const updateLatestAssessmentSnapshot = mutation({
     });
   },
 });
+/**
+ * ADD THIS TO THE BOTTOM OF /convex/users.ts
+ * ===========================================
+ * One additional mutation needed for the Clerk webhook handler.
+ * Paste this at the end of your existing users.ts file.
+ */
+/**
+ * deactivateUser
+ * Called by Clerk webhook on user.deleted event.
+ * Soft delete — preserves assessment data for records.
+ */
+export const deactivateUser = mutation({
+  args: { clerkUserId: v.string() },
+  handler: async (ctx, { clerkUserId }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkUserId", clerkUserId))
+      .unique();
+    if (!user) return null;
+    await ctx.db.patch(user._id, {
+      isActive:  false,
+      updatedAt: Date.now(),
+    });
+    return user._id;
+  },
+});
