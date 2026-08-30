@@ -104,6 +104,10 @@ input:focus,select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,14
 .sex-btn{flex:1;padding:11px;border:1.5px solid var(--border);border-radius:var(--r);font-family:var(--font-b);font-size:15px;font-weight:500;color:var(--ink-muted);background:var(--surface-2);cursor:pointer;transition:all .15s var(--ease);text-align:center}
 .sex-btn.active{border-color:var(--teal);color:var(--teal);background:var(--teal-muted);font-weight:600}
 .hint{font-size:12px;color:var(--ink-faint);margin-top:2px}
+.unit-toggle{display:flex;border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--surface-2);flex-shrink:0}
+.unit-btn{padding:8px 12px;font-family:var(--font-b);font-size:13px;font-weight:500;color:var(--ink-muted);background:transparent;border:none;cursor:pointer;transition:all .15s var(--ease)}
+.unit-btn.active{background:var(--teal);color:var(--white);font-weight:600}
+.conv-hint{font-size:12px;color:var(--teal-dark);text-align:right;margin-top:-4px;margin-bottom:8px;display:none}
 
 /* ==================================================== INFO / METHOD BOX ==================================================== */
 .info-box{background:var(--teal-tint);border:1px solid var(--teal-muted);border-radius:var(--r);padding:14px 16px;font-size:13px;color:var(--teal-dark);line-height:1.6;margin-bottom:18px}
@@ -236,7 +240,7 @@ footer em{font-style:italic}
         <li>Mark a flat, straight 20–30 m walkway or hallway (ATS/ERS protocol).</li>
         <li>Patient walks as far as possible in 6 minutes at a safe, self-selected brisk pace.</li>
         <li>Resting breaks are permitted; the timer keeps running.</li>
-        <li>Record total distance walked in meters.</li>
+        <li>Record total distance walked — enter in meters or yards, whichever your course is measured in.</li>
       </ol>
     </div>
     <div class="timer-box">
@@ -252,8 +256,15 @@ footer em{font-style:italic}
     </div>
     <div class="result-row">
       <label>Distance Walked</label>
-      <div><input type="number" id="input-6mwt" value="520" oninput="eval6mwt()"> <span class="hint">meters</span></div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="number" id="input-6mwt" value="520" oninput="handleMwtInput()">
+        <div class="unit-toggle">
+          <button type="button" class="unit-btn active" id="mwt-unit-m" onclick="setMwtUnit('meters')">Meters</button>
+          <button type="button" class="unit-btn" id="mwt-unit-yd" onclick="setMwtUnit('yards')">Yards</button>
+        </div>
+      </div>
     </div>
+    <div id="mwt-conv" class="conv-hint"></div>
     <div class="norm-row"><span>Age/sex reference (mid-range):</span><strong id="norm-6mwt">510 m</strong></div>
     <div id="eval-6mwt-box" class="eval-box eval-good">On track with age-adjusted reference range.</div>
   </div>
@@ -407,7 +418,39 @@ const NORMATIVE_DATA = {
   }
 };
 
-let state = { sex: 'male' };
+let state = { sex: 'male', mwtUnit: 'meters' };
+
+const YARDS_TO_METERS = 0.9144;
+
+function setMwtUnit(unit) {
+  state.mwtUnit = unit;
+  document.getElementById('mwt-unit-m').classList.toggle('active', unit === 'meters');
+  document.getElementById('mwt-unit-yd').classList.toggle('active', unit === 'yards');
+  updateMwtConv();
+  eval6mwt();
+}
+
+// Distance entered in input-6mwt, converted to meters for norm comparison.
+function mwtMeters() {
+  const raw = parseFloat(document.getElementById('input-6mwt').value) || 0;
+  return state.mwtUnit === 'yards' ? raw * YARDS_TO_METERS : raw;
+}
+
+function updateMwtConv() {
+  const box = document.getElementById('mwt-conv');
+  const raw = parseFloat(document.getElementById('input-6mwt').value) || 0;
+  if (state.mwtUnit === 'yards' && raw > 0) {
+    box.style.display = 'block';
+    box.innerText = `${raw} yd = ${(raw * YARDS_TO_METERS).toFixed(1)} m`;
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+function handleMwtInput() {
+  updateMwtConv();
+  eval6mwt();
+}
 
 function getAgeGroup(age) {
   if (age < 50) return "40-49";
@@ -450,7 +493,7 @@ function setEvalBox(id, tier, text) {
 }
 
 function eval6mwt() {
-  const val = parseFloat(document.getElementById('input-6mwt').value) || 0;
+  const val = Math.round(mwtMeters());
   const norm = getCurrentNorms().m6wt;
   if (val >= norm) setEvalBox('eval-6mwt-box', 'good', `On track: meets or exceeds the reference midpoint (${norm} m). Aerobic capacity is holding well.`);
   else if (val >= norm - 50) setEvalBox('eval-6mwt-box', 'caution', `Mild aerobic drift: below reference (${norm} m). A realistic 4-week gain target is +14 to +30 m.`);
@@ -537,7 +580,7 @@ let history = [];
 function currentRecord() {
   const age = parseInt(document.getElementById('user-age').value) || 65;
   const norms = getCurrentNorms();
-  const m6wt = parseFloat(document.getElementById('input-6mwt').value) || 0;
+  const m6wt = Math.round(mwtMeters());
   const sts = parseInt(document.getElementById('input-sts').value) || 0;
   const tug = parseFloat(document.getElementById('input-tug').value) || 0;
   const grip = parseFloat(document.getElementById('input-grip').value) || 0;
