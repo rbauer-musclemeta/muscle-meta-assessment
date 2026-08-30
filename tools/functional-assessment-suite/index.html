@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MM™ Functional Assessment Suite | Muscle-Meta Matrix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+/* ====================================================
+   TOKENS — Muscle-Meta Matrix™ brand system
+   ==================================================== */
+:root {
+  --teal:        #009090;
+  --teal-dark:   #006b6b;
+  --teal-light:  #00b3b3;
+  --teal-muted:  #e6f5f5;
+  --teal-tint:   #f0f9f9;
+  --gold:        #D4AF37;
+  --gold-dark:   #B5952F;
+  --gold-muted:  #faf6e8;
+  --green:       #16a34a;
+  --green-muted: #f0fdf4;
+  --amber:       #f59e0b;
+  --amber-muted: #fef3c7;
+  --amber-ink:   #92400e;
+  --orange:      #f97316;
+  --orange-muted:#ffedd5;
+  --red:         #dc2626;
+  --red-muted:   #fee2e2;
+  --ink:         #1a2332;
+  --ink-soft:    #344256;
+  --ink-muted:   #6b7b8f;
+  --ink-faint:   #a8b3c2;
+  --surface:     #f7f6f3;
+  --surface-2:   #fdfcfa;
+  --border:      #e8e6e1;
+  --border-soft: #f0eeea;
+  --white:       #ffffff;
+  --font-d:      'Cormorant Garamond', Georgia, serif;
+  --font-b:      'Outfit', 'Helvetica Neue', Arial, sans-serif;
+  --ease:        cubic-bezier(0.16,1,0.3,1);
+  --r:           12px;
+  --r-lg:        18px;
+  --r-pill:      999px;
+  --shadow-sm:   0 2px 8px rgba(26,35,50,.06);
+  --shadow-md:   0 6px 20px rgba(26,35,50,.09);
+  --shadow-lg:   0 16px 48px rgba(26,35,50,.11);
+  --shadow-teal: 0 8px 32px rgba(0,144,144,.18);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-b);background:var(--surface);color:var(--ink-soft);min-height:100vh;line-height:1.65}
+
+/* ==================================================== HEADER ==================================================== */
+.header{
+  background:var(--ink);
+  padding:18px 32px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-mark{
+  width:36px;height:36px;border-radius:8px;
+  background:linear-gradient(135deg,var(--teal),var(--teal-dark));
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(212,175,55,.35);flex-shrink:0;
+}
+.logo-text{font-family:var(--font-d);font-size:20px;font-weight:600;color:var(--white);letter-spacing:-0.01em}
+.logo-text span{color:var(--gold)}
+.header-badge{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.4)}
+
+/* ==================================================== LAYOUT ==================================================== */
+.app{max-width:900px;margin:0 auto;padding:40px 24px 80px}
+.page-title{font-family:var(--font-d);font-size:clamp(28px,4vw,42px);font-weight:700;color:var(--ink);line-height:1.1;letter-spacing:-0.02em;margin-bottom:8px}
+.page-title em{color:var(--teal);font-style:italic}
+.page-sub{font-size:16px;color:var(--ink-muted);margin-bottom:36px;max-width:640px}
+
+/* ==================================================== CARD ==================================================== */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:32px;margin-bottom:20px;box-shadow:var(--shadow-sm)}
+.card-title{font-family:var(--font-d);font-size:22px;font-weight:600;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.card-title-num{width:28px;height:28px;border-radius:50%;background:var(--teal);color:var(--white);font-family:var(--font-b);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-tag{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--teal-muted);color:var(--teal-dark);padding:5px 12px;border-radius:var(--r-pill)}
+.card-sub{font-size:13px;color:var(--ink-muted);margin-bottom:18px}
+
+/* ==================================================== FORM ELEMENTS ==================================================== */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full{grid-column:1/-1}
+label{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted)}
+input[type=number],input[type=text],input[type=date],select{
+  width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--r);
+  font-family:var(--font-b);font-size:15px;color:var(--ink);background:var(--surface-2);
+  transition:border-color .15s var(--ease),box-shadow .15s var(--ease);outline:none;
+  appearance:none;-webkit-appearance:none;
+}
+input:focus,select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,144,144,.12)}
+.sex-group{display:flex;gap:10px}
+.sex-btn{flex:1;padding:11px;border:1.5px solid var(--border);border-radius:var(--r);font-family:var(--font-b);font-size:15px;font-weight:500;color:var(--ink-muted);background:var(--surface-2);cursor:pointer;transition:all .15s var(--ease);text-align:center}
+.sex-btn.active{border-color:var(--teal);color:var(--teal);background:var(--teal-muted);font-weight:600}
+.hint{font-size:12px;color:var(--ink-faint);margin-top:2px}
+
+/* ==================================================== INFO / METHOD BOX ==================================================== */
+.info-box{background:var(--teal-tint);border:1px solid var(--teal-muted);border-radius:var(--r);padding:14px 16px;font-size:13px;color:var(--teal-dark);line-height:1.6;margin-bottom:18px}
+.info-box strong{color:var(--ink)}
+.info-box ol{padding-left:18px;margin-top:6px}
+.info-box li{margin-bottom:3px}
+
+/* ==================================================== TIMER ==================================================== */
+.timer-box{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:18px}
+.timer-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.timer-label{font-size:13px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px}
+.timer-clock{font-family:var(--font-d);font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-0.01em;font-variant-numeric:tabular-nums}
+.timer-controls{display:flex;gap:8px}
+.btn-sm{padding:8px 16px;font-size:13px}
+
+/* ==================================================== RESULT INPUT + EVAL ==================================================== */
+.result-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.result-row label{margin-bottom:0}
+.result-row input{width:110px;text-align:center;font-weight:600}
+.norm-row{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-muted);margin-bottom:10px}
+.norm-row strong{color:var(--teal-dark)}
+.eval-box{border-radius:var(--r);padding:12px 14px;font-size:13px;font-weight:500;line-height:1.5;border:1px solid var(--border)}
+.eval-good{background:var(--teal-tint);border-color:var(--teal-muted);color:var(--teal-dark)}
+.eval-caution{background:var(--amber-muted);border-color:rgba(245,158,11,.35);color:var(--amber-ink)}
+.eval-risk{background:var(--red-muted);border-color:rgba(220,38,38,.3);color:#991b1b}
+
+/* ==================================================== BUTTONS ==================================================== */
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-b);font-size:15px;font-weight:600;border-radius:var(--r-pill);padding:13px 28px;border:1.5px solid transparent;cursor:pointer;transition:all .2s var(--ease);text-decoration:none;line-height:1}
+.btn-primary{background:var(--teal);color:var(--white);box-shadow:var(--shadow-sm)}
+.btn-primary:hover{background:var(--teal-dark);transform:translateY(-1px);box-shadow:var(--shadow-teal)}
+.btn-gold{background:var(--gold);color:var(--ink);box-shadow:0 4px 16px rgba(212,175,55,.25)}
+.btn-gold:hover{background:var(--gold-dark);color:var(--white);transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--ink);border-color:var(--border)}
+.btn-outline:hover{border-color:var(--teal);color:var(--teal)}
+.btn-ghost-red{background:transparent;color:#b91c1c;border-color:rgba(220,38,38,.25)}
+.btn-ghost-red:hover{background:var(--red-muted)}
+.btn-lg{padding:16px 36px;font-size:16px}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+
+/* ==================================================== HISTORY TABLE ==================================================== */
+.norms-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:28px;margin-bottom:20px;box-shadow:var(--shadow-sm)}
+.norms-title{font-family:var(--font-d);font-size:20px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.norms-card-sub{font-size:13px;color:var(--ink-muted);margin-bottom:18px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);padding:9px 10px;border-bottom:1.5px solid var(--border)}
+td{padding:9px 10px;border-bottom:1px solid var(--border-soft);color:var(--ink-soft)}
+tr:last-child td{border-bottom:none}
+.status-pill{display:inline-block;padding:3px 10px;border-radius:var(--r-pill);font-size:11px;font-weight:600}
+.pill-good{background:var(--teal-muted);color:var(--teal-dark)}
+.pill-caution{background:var(--amber-muted);color:var(--amber-ink)}
+.empty-row td{text-align:center;color:var(--ink-faint);font-style:italic;padding:20px}
+
+/* ==================================================== ACTION STRIP ==================================================== */
+.action-strip{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;box-shadow:var(--shadow-sm);flex-wrap:wrap}
+.action-text{font-size:15px;color:var(--ink-muted);max-width:440px}
+.action-text strong{color:var(--ink)}
+
+/* ==================================================== NOTE / DISCLAIMER ==================================================== */
+.note-box{background:var(--gold-muted);border:1px solid rgba(212,175,55,.3);border-radius:var(--r);padding:14px 16px;font-size:12px;color:var(--gold-dark);line-height:1.6;margin-bottom:20px}
+.error-msg{background:var(--red-muted);border:1px solid rgba(220,38,38,.2);border-radius:var(--r);padding:12px 14px;font-size:13px;color:var(--red);margin-top:10px;display:none}
+.error-msg.visible{display:block}
+
+footer{text-align:center;padding:40px 24px;font-size:12px;color:var(--ink-faint);border-top:1px solid var(--border);margin-top:20px}
+footer em{font-style:italic}
+
+@media(max-width:720px){
+  .form-row,.form-row-3{grid-template-columns:1fr}
+  .header{padding:14px 16px}
+  .app{padding:24px 16px 60px}
+  .action-strip{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    </div>
+    <div class="logo-text">Muscle-Meta Matrix<span>™</span></div>
+  </div>
+  <div class="header-badge">Functional Assessment Suite</div>
+</header>
+
+<div class="app">
+
+  <div style="margin-bottom:32px;">
+    <h1 class="page-title">Functional <em>Assessment</em> Suite</h1>
+    <p class="page-sub">Four validated physical performance measures — walk your client through each test, log the result, and generate an age- and sex-matched comparison report to download or print.</p>
+  </div>
+
+  <!-- CLIENT PROFILE -->
+  <div class="card">
+    <div class="card-title"><span class="card-title-num">•</span>Client Profile</div>
+    <div class="card-sub">Reference ranges recalculate automatically for ages 40–85.</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Client Name</label>
+        <input type="text" id="client-name" placeholder="e.g. Jane Doe">
+      </div>
+      <div class="form-group">
+        <label>Assessment Date</label>
+        <input type="date" id="client-date">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Age (40–85)</label>
+        <input type="number" id="user-age" min="40" max="85" value="65" onchange="updateAllNorms()">
+      </div>
+      <div class="form-group">
+        <label>Biological Sex</label>
+        <div class="sex-group">
+          <button class="sex-btn active" id="sex-m" onclick="setSex('male')">Male</button>
+          <button class="sex-btn" id="sex-f" onclick="setSex('female')">Female</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEST 1: 6MWT -->
+  <div class="card">
+    <div class="card-title"><span class="card-title-num">1</span>6-Minute Walk Test<span class="card-tag">Aerobic Capacity</span></div>
+    <div class="card-sub">Submaximal cardiorespiratory fitness, aerobic capacity, and functional mobility.</div>
+    <div class="info-box">
+      <strong>Method:</strong>
+      <ol>
+        <li>Mark a flat, straight 20–30 m walkway or hallway (ATS/ERS protocol).</li>
+        <li>Patient walks as far as possible in 6 minutes at a safe, self-selected brisk pace.</li>
+        <li>Resting breaks are permitted; the timer keeps running.</li>
+        <li>Record total distance walked in meters.</li>
+      </ol>
+    </div>
+    <div class="timer-box">
+      <div class="timer-row">
+        <span class="timer-label">Test Timer (6:00)</span>
+        <span class="timer-clock" id="clock-6mwt">06:00</span>
+      </div>
+      <div class="timer-controls">
+        <button class="btn btn-primary btn-sm" onclick="startCountdown('6mwt',360)" id="btn-start-6mwt">Start</button>
+        <button class="btn btn-outline btn-sm" onclick="pauseCountdown('6mwt')">Pause</button>
+        <button class="btn btn-outline btn-sm" onclick="resetCountdown('6mwt',360)">Reset</button>
+      </div>
+    </div>
+    <div class="result-row">
+      <label>Distance Walked</label>
+      <div><input type="number" id="input-6mwt" value="520" oninput="eval6mwt()"> <span class="hint">meters</span></div>
+    </div>
+    <div class="norm-row"><span>Age/sex reference (mid-range):</span><strong id="norm-6mwt">510 m</strong></div>
+    <div id="eval-6mwt-box" class="eval-box eval-good">On track with age-adjusted reference range.</div>
+  </div>
+
+  <!-- TEST 2: 30s STS -->
+  <div class="card">
+    <div class="card-title"><span class="card-title-num">2</span>30-Second Sit-to-Stand<span class="card-tag">Lower Body Power</span></div>
+    <div class="card-sub">Quad/glute power, lower-body muscular endurance, and sarcopenia screening.</div>
+    <div class="info-box">
+      <strong>Method:</strong>
+      <ol>
+        <li>Standard armless chair (seat height ~43 cm), placed against a wall.</li>
+        <li>Patient sits mid-seat, feet flat, arms crossed over chest.</li>
+        <li>On "Go," stand fully upright and sit back down as many times as possible in 30 seconds.</li>
+        <li>Count only stands with full knee extension.</li>
+      </ol>
+    </div>
+    <div class="timer-box">
+      <div class="timer-row">
+        <span class="timer-label">Test Timer (0:30)</span>
+        <span class="timer-clock" id="clock-sts">00:30</span>
+      </div>
+      <div class="timer-controls">
+        <button class="btn btn-primary btn-sm" onclick="startCountdown('sts',30)" id="btn-start-sts">Start</button>
+        <button class="btn btn-outline btn-sm" onclick="pauseCountdown('sts')">Pause</button>
+        <button class="btn btn-outline btn-sm" onclick="resetCountdown('sts',30)">Reset</button>
+      </div>
+    </div>
+    <div class="result-row">
+      <label>Completed Repetitions</label>
+      <div><input type="number" id="input-sts" value="14" oninput="evalSts()"> <span class="hint">reps</span></div>
+    </div>
+    <div class="norm-row"><span>Age/sex reference (mid-range):</span><strong id="norm-sts">14 reps</strong></div>
+    <div id="eval-sts-box" class="eval-box eval-good">Meets age-adjusted reference target.</div>
+  </div>
+
+  <!-- TEST 3: TUG -->
+  <div class="card">
+    <div class="card-title"><span class="card-title-num">3</span>Timed Up-and-Go<span class="card-tag">Agility &amp; Balance</span></div>
+    <div class="card-sub">Dynamic agility, gait speed, and fall-risk stratification.</div>
+    <div class="info-box">
+      <strong>Method:</strong>
+      <ol>
+        <li>Patient begins seated in an armchair, back against the seat.</li>
+        <li>Place a marker exactly 3 m (10 ft) away.</li>
+        <li>On "Go," stand, walk to the marker at a comfortable pace, turn, walk back, and sit.</li>
+        <li>Stop timing the instant the patient's back touches the seat. Lower time = better score.</li>
+      </ol>
+    </div>
+    <div class="timer-box">
+      <div class="timer-row">
+        <span class="timer-label">Precision Stopwatch</span>
+        <span class="timer-clock" id="clock-tug">00:00.0</span>
+      </div>
+      <div class="timer-controls">
+        <button class="btn btn-primary btn-sm" onclick="startStopwatch()" id="btn-start-tug">Start</button>
+        <button class="btn btn-outline btn-sm" onclick="stopStopwatch()">Stop</button>
+        <button class="btn btn-outline btn-sm" onclick="resetStopwatch()">Reset</button>
+      </div>
+    </div>
+    <div class="result-row">
+      <label>Time Taken</label>
+      <div><input type="number" step="0.1" id="input-tug" value="8.8" oninput="evalTug()"> <span class="hint">seconds</span></div>
+    </div>
+    <div class="norm-row"><span>Age/sex reference target:</span><strong id="norm-tug">&lt; 9.2 sec</strong></div>
+    <div id="eval-tug-box" class="eval-box eval-good">Low fall-risk profile. Mobility intact.</div>
+  </div>
+
+  <!-- TEST 4: GRIP -->
+  <div class="card">
+    <div class="card-title"><span class="card-title-num">4</span>Handgrip Strength<span class="card-tag">Muscular Vigor</span></div>
+    <div class="card-sub">Whole-body lean-mass proxy, grip force, and sarcopenia status.</div>
+    <div class="info-box">
+      <strong>Method:</strong>
+      <ol>
+        <li>Patient seated, elbow flexed 90°, wrist neutral.</li>
+        <li>Standard Jamar hydraulic dynamometer, second handle position.</li>
+        <li>Squeeze with maximal force for 3–5 seconds.</li>
+        <li>3 trials per hand; record the single highest score in kilograms.</li>
+      </ol>
+    </div>
+    <div class="result-row">
+      <label>Max Grip Force</label>
+      <div><input type="number" id="input-grip" value="34" oninput="evalGrip()"> <span class="hint">kg</span></div>
+    </div>
+    <div class="norm-row"><span>Age/sex reference (mid-range):</span><strong id="norm-grip">31.0 kg</strong></div>
+    <div id="eval-grip-box" class="eval-box eval-good">Grip strength robust and above sarcopenia cutoff.</div>
+  </div>
+
+  <!-- ASSESSMENT HISTORY -->
+  <div class="norms-card">
+    <div class="norms-title">Assessment History</div>
+    <div class="norms-card-sub">Saved records for this device, most recent first.</div>
+    <div style="overflow-x:auto;">
+      <table id="history-table">
+        <thead><tr>
+          <th>Date</th><th>Client</th><th>Age/Sex</th><th>6MWT</th><th>30s STS</th><th>TUG</th><th>Grip</th><th>Status</th>
+        </tr></thead>
+        <tbody id="history-tbody"></tbody>
+      </table>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline btn-sm" onclick="clearHistory()">Clear history</button>
+    </div>
+  </div>
+
+  <div id="error-msg" class="error-msg"></div>
+
+  <!-- ACTION STRIP -->
+  <div class="action-strip">
+    <div class="action-text"><strong>Save today's results.</strong> Log this assessment to history, then download a clinical PDF report with the age/sex-matched comparison and next-steps guidance.</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <button class="btn btn-outline" onclick="saveAssessment()">Save assessment</button>
+      <button class="btn btn-gold" onclick="downloadPDF()">Download PDF report</button>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <strong>Reference sources:</strong> 6-Minute Walk Test — Enright &amp; Sherrill (1998); ATS/ERS Technical Standard (2014). 30-Second Sit-to-Stand — Rikli &amp; Jones, Senior Fitness Test (1999; 2013). Timed Up-and-Go — Bohannon, descriptive meta-analysis (2006); fall-risk cutoff ≥12 s (Shumway-Cook et al., 2000). Handgrip Strength — Dodds et al., pooled normative data from twelve British studies (2014); low-strength (probable sarcopenia) cutoffs per EWGSOP2 (Cruz-Jentoft et al., 2019). Values shown are population reference midpoints intended for screening comparison, consistent with the functional/frailty assessment approach described in ACSM's Guidelines for Exercise Testing and Prescription — not diagnostic cutoffs. Reference ranges for ages 40–59 are extrapolated from adjacent decades; the primary literature for these four instruments is validated chiefly for ages 60 and older. Clinical judgment always governs interpretation.
+  </div>
+
+  <footer>
+    Muscle-Meta Matrix™ | Randy Bauer PT | Functional Performance Assessment Suite<br>
+    <em>For educational and functional-tracking purposes. Not a substitute for individualized clinical exercise testing or medical evaluation.</em>
+  </footer>
+
+</div>
+
+<script>
+// =========================================================================
+// NORMATIVE DATA — age/sex reference midpoints, ages 40–85
+// Sources: see on-page citation note. 60–85 bands reflect published
+// reference values (Rikli & Jones 1999/2013; Bohannon 2006; Enright &
+// Sherrill 1998; Dodds et al. 2014). 40–59 bands are extrapolated
+// estimates for reference only — see disclaimer.
+// =========================================================================
+const NORMATIVE_DATA = {
+  male: {
+    "40-49": { m6wt: 620, sts: 18, tug: 6.8, grip: 45.0 },
+    "50-59": { m6wt: 580, sts: 16, tug: 7.4, grip: 40.0 },
+    "60-69": { m6wt: 550, sts: 16, tug: 8.1, grip: 37.0 },
+    "70-79": { m6wt: 500, sts: 14, tug: 9.2, grip: 32.0 },
+    "80-85": { m6wt: 410, sts: 12, tug: 11.3, grip: 27.0 }
+  },
+  female: {
+    "40-49": { m6wt: 570, sts: 16, tug: 7.1, grip: 29.0 },
+    "50-59": { m6wt: 530, sts: 15, tug: 7.7, grip: 26.0 },
+    "60-69": { m6wt: 490, sts: 14, tug: 8.4, grip: 23.5 },
+    "70-79": { m6wt: 440, sts: 12, tug: 9.6, grip: 20.0 },
+    "80-85": { m6wt: 360, sts: 10, tug: 11.8, grip: 16.5 }
+  }
+};
+
+let state = { sex: 'male' };
+
+function getAgeGroup(age) {
+  if (age < 50) return "40-49";
+  if (age < 60) return "50-59";
+  if (age < 70) return "60-69";
+  if (age < 80) return "70-79";
+  return "80-85";
+}
+function isEstimatedBand(age) { return age < 60; }
+function getCurrentNorms() {
+  const age = parseInt(document.getElementById('user-age').value) || 65;
+  return NORMATIVE_DATA[state.sex][getAgeGroup(age)];
+}
+
+function setSex(sex) {
+  state.sex = sex;
+  document.getElementById('sex-m').classList.toggle('active', sex === 'male');
+  document.getElementById('sex-f').classList.toggle('active', sex === 'female');
+  updateAllNorms();
+}
+
+function updateAllNorms() {
+  const age = parseInt(document.getElementById('user-age').value) || 65;
+  const norms = getCurrentNorms();
+  const est = isEstimatedBand(age) ? ' (est.)' : '';
+  document.getElementById('norm-6mwt').innerText = `${norms.m6wt} m${est}`;
+  document.getElementById('norm-sts').innerText = `${norms.sts} reps${est}`;
+  document.getElementById('norm-tug').innerText = `< ${norms.tug} sec${est}`;
+  document.getElementById('norm-grip').innerText = `${norms.grip.toFixed(1)} kg${est}`;
+  eval6mwt(); evalSts(); evalTug(); evalGrip();
+}
+
+// =========================================================================
+// EVALUATION LOGIC
+// =========================================================================
+function setEvalBox(id, tier, text) {
+  const box = document.getElementById(id);
+  box.className = 'eval-box eval-' + tier;
+  box.innerText = text;
+}
+
+function eval6mwt() {
+  const val = parseFloat(document.getElementById('input-6mwt').value) || 0;
+  const norm = getCurrentNorms().m6wt;
+  if (val >= norm) setEvalBox('eval-6mwt-box', 'good', `On track: meets or exceeds the reference midpoint (${norm} m). Aerobic capacity is holding well.`);
+  else if (val >= norm - 50) setEvalBox('eval-6mwt-box', 'caution', `Mild aerobic drift: below reference (${norm} m). A realistic 4-week gain target is +14 to +30 m.`);
+  else setEvalBox('eval-6mwt-box', 'risk', `Significantly below reference (${norm} m) — worth a closer look at aerobic conditioning and ADL tolerance.`);
+}
+
+function evalSts() {
+  const val = parseInt(document.getElementById('input-sts').value) || 0;
+  const norm = getCurrentNorms().sts;
+  if (val >= norm) setEvalBox('eval-sts-box', 'good', `On track: meets or exceeds the reference target (${norm} reps). Lower-body power intact.`);
+  else setEvalBox('eval-sts-box', 'caution', `Below reference (${norm} reps). A realistic 4-week gain target is +1.6 reps with quad/glute power training.`);
+}
+
+function evalTug() {
+  const val = parseFloat(document.getElementById('input-tug').value) || 0;
+  const norm = getCurrentNorms().tug;
+  if (val <= norm) setEvalBox('eval-tug-box', 'good', `Agile: at or below the reference time (${norm} sec). Low fall-risk profile.`);
+  else if (val <= 12.0) setEvalBox('eval-tug-box', 'caution', `Slower than reference (${norm} sec). A realistic 4-week target is −1.1 sec.`);
+  else setEvalBox('eval-tug-box', 'risk', `Time exceeds 12 sec — this range is associated with elevated fall risk (Shumway-Cook et al., 2000).`);
+}
+
+function evalGrip() {
+  const val = parseFloat(document.getElementById('input-grip').value) || 0;
+  const norm = getCurrentNorms().grip;
+  const sarcopeniaCutoff = state.sex === 'male' ? 27 : 16;
+  if (val >= norm) setEvalBox('eval-grip-box', 'good', `Robust: meets or exceeds the reference midpoint (${norm} kg). Low sarcopenia risk.`);
+  else if (val >= sarcopeniaCutoff) setEvalBox('eval-grip-box', 'caution', `Below reference (${norm} kg). A realistic 4-week gain target is +2 to +3 kg.`);
+  else setEvalBox('eval-grip-box', 'risk', `Below the EWGSOP2 low-strength cutoff (${sarcopeniaCutoff} kg) — flag for further sarcopenia screening.`);
+}
+
+// =========================================================================
+// TIMERS
+// =========================================================================
+let countdowns = {};
+function startCountdown(id, defaultSecs) {
+  if (countdowns[id]) return;
+  if (countdowns[id + '_sec'] === undefined) countdowns[id + '_sec'] = defaultSecs;
+  document.getElementById('btn-start-' + id).innerText = 'Running…';
+  countdowns[id] = setInterval(() => {
+    countdowns[id + '_sec']--;
+    const cur = countdowns[id + '_sec'];
+    const m = Math.floor(cur / 60), s = cur % 60;
+    document.getElementById('clock-' + id).innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if (cur <= 0) {
+      clearInterval(countdowns[id]); countdowns[id] = null;
+      resetCountdown(id, defaultSecs);
+    }
+  }, 1000);
+}
+function pauseCountdown(id) {
+  if (countdowns[id]) { clearInterval(countdowns[id]); countdowns[id] = null; document.getElementById('btn-start-' + id).innerText = 'Resume'; }
+}
+function resetCountdown(id, defaultSecs) {
+  if (countdowns[id]) clearInterval(countdowns[id]);
+  countdowns[id] = null; countdowns[id + '_sec'] = defaultSecs;
+  const m = Math.floor(defaultSecs / 60), s = defaultSecs % 60;
+  document.getElementById('clock-' + id).innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  document.getElementById('btn-start-' + id).innerText = 'Start';
+}
+
+let tugTimer = null, tugMs = 0;
+function startStopwatch() {
+  if (tugTimer) return;
+  document.getElementById('btn-start-tug').innerText = 'Running…';
+  const startTime = Date.now() - tugMs;
+  tugTimer = setInterval(() => {
+    tugMs = Date.now() - startTime;
+    const totalSec = (tugMs / 1000).toFixed(1);
+    const m = Math.floor(totalSec / 60), s = (totalSec % 60).toFixed(1);
+    document.getElementById('clock-tug').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(4,'0')}`;
+    document.getElementById('input-tug').value = totalSec;
+    evalTug();
+  }, 100);
+}
+function stopStopwatch() { if (tugTimer) { clearInterval(tugTimer); tugTimer = null; document.getElementById('btn-start-tug').innerText = 'Resume'; } }
+function resetStopwatch() { if (tugTimer) clearInterval(tugTimer); tugTimer = null; tugMs = 0; document.getElementById('clock-tug').innerText = '00:00.0'; document.getElementById('btn-start-tug').innerText = 'Start'; }
+
+// =========================================================================
+// HISTORY (localStorage)
+// =========================================================================
+const HISTORY_KEY = 'mmm_functional_assessment_history_v1';
+let history = [];
+
+function currentRecord() {
+  const age = parseInt(document.getElementById('user-age').value) || 65;
+  const norms = getCurrentNorms();
+  const m6wt = parseFloat(document.getElementById('input-6mwt').value) || 0;
+  const sts = parseInt(document.getElementById('input-sts').value) || 0;
+  const tug = parseFloat(document.getElementById('input-tug').value) || 0;
+  const grip = parseFloat(document.getElementById('input-grip').value) || 0;
+  const status = (m6wt < norms.m6wt || sts < norms.sts || tug > norms.tug || grip < norms.grip) ? 'Below reference' : 'On track';
+  return {
+    date: document.getElementById('client-date').value || new Date().toISOString().slice(0,10),
+    name: document.getElementById('client-name').value || '—',
+    ageSex: `${age}y / ${state.sex === 'male' ? 'M' : 'F'}`,
+    m6wt, sts, tug, grip, status
+  };
+}
+
+function saveAssessment() {
+  history.unshift(currentRecord());
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  renderHistory();
+}
+
+function loadHistory() {
+  try { history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch(e) { history = []; }
+  renderHistory();
+}
+
+function renderHistory() {
+  const tbody = document.getElementById('history-tbody');
+  if (history.length === 0) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No saved assessments yet.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = history.map(r => {
+    const pill = r.status === 'On track' ? 'pill-good' : 'pill-caution';
+    return `<tr>
+      <td>${r.date}</td><td>${r.name}</td><td>${r.ageSex}</td>
+      <td>${r.m6wt} m</td><td>${r.sts} reps</td><td>${r.tug} s</td><td>${r.grip} kg</td>
+      <td><span class="status-pill ${pill}">${r.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function clearHistory() {
+  if (confirm('Clear all saved assessment history on this device?')) {
+    history = [];
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    renderHistory();
+  }
+}
+
+// =========================================================================
+// PDF REPORT
+// =========================================================================
+function downloadPDF() {
+  const errEl = document.getElementById('error-msg');
+  errEl.classList.remove('visible');
+  const age = parseInt(document.getElementById('user-age').value);
+  if (isNaN(age) || age < 40 || age > 85) {
+    errEl.textContent = 'Please enter a valid age between 40 and 85.';
+    errEl.classList.add('visible');
+    return;
+  }
+
+  const r = currentRecord();
+  const norms = getCurrentNorms();
+  const est = isEstimatedBand(age);
+  const sex = state.sex;
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+  const W = 215.9, H = 279.4, margin = 20, cw = W - margin * 2;
+  let y = 0;
+
+  function rect(x, yy, w, h, fill, stroke) {
+    if (fill) { doc.setFillColor(...fill); doc.rect(x, yy, w, h, 'F'); }
+    if (stroke) { doc.setDrawColor(...stroke); doc.rect(x, yy, w, h, 'S'); }
+  }
+  function text(str, x, yy, opts) { doc.text(str, x, yy, opts || {}); }
+  function setFont(name, style, size, color) {
+    doc.setFont(name || 'helvetica', style || 'normal');
+    doc.setFontSize(size || 10);
+    if (color) doc.setTextColor(...color);
+  }
+  function ensureRoom(needed) {
+    if (y + needed > H - 24) { doc.addPage(); y = 20; }
+  }
+
+  // HEADER BAR
+  rect(0, 0, W, 28, [26, 35, 50]);
+  setFont('helvetica', 'bold', 18, [255, 255, 255]);
+  text('MM™ Functional Assessment Report', margin, 12);
+  setFont('helvetica', 'normal', 9, [160, 177, 194]);
+  text('Muscle-Meta Matrix™  |  Randy Bauer PT  |  musclemeta.com', margin, 20);
+  rect(0, 28, W, 2, [212, 175, 55]);
+  y = 38;
+
+  // CLIENT INFO BAR
+  rect(margin, y, cw, 24, [240, 249, 249], [200, 233, 233]);
+  setFont('helvetica', 'bold', 10, [26, 35, 50]);
+  text('Client:', margin + 4, y + 7);
+  setFont('helvetica', 'normal', 10, [52, 66, 86]);
+  text(r.name, margin + 20, y + 7);
+  setFont('helvetica', 'bold', 10, [26, 35, 50]);
+  text('Date:', margin + 4, y + 15);
+  setFont('helvetica', 'normal', 10, [52, 66, 86]);
+  text(r.date, margin + 20, y + 15);
+  setFont('helvetica', 'bold', 10, [0, 107, 107]);
+  text(`Age ${age}  ·  ${sex === 'male' ? 'Male' : 'Female'}`, margin + cw - 4, y + 11, { align: 'right' });
+  y += 32;
+
+  // RESULTS: 4 stat rows
+  setFont('helvetica', 'bold', 12, [0, 144, 144]);
+  text('Results vs. Age/Sex Reference', margin, y); y += 8;
+
+  const rows = [
+    { label: '6-Minute Walk Test', val: `${r.m6wt} m`, norm: `${norms.m6wt} m`, ok: r.m6wt >= norms.m6wt },
+    { label: '30-Second Sit-to-Stand', val: `${r.sts} reps`, norm: `${norms.sts} reps`, ok: r.sts >= norms.sts },
+    { label: 'Timed Up-and-Go', val: `${r.tug} s`, norm: `< ${norms.tug} s`, ok: r.tug <= norms.tug },
+    { label: 'Handgrip Strength', val: `${r.grip} kg`, norm: `${norms.grip.toFixed(1)} kg`, ok: r.grip >= norms.grip }
+  ];
+
+  const colW = [cw * 0.34, cw * 0.22, cw * 0.22, cw * 0.22];
+  const rowH = 9;
+  rect(margin, y, cw, rowH, [26, 35, 50]);
+  setFont('helvetica', 'bold', 8, [255, 255, 255]);
+  let x = margin;
+  ['Test', 'Your Score', 'Reference', 'Status'].forEach((h, i) => { text(h, x + 3, y + 6); x += colW[i]; });
+  y += rowH;
+
+  rows.forEach((row, i) => {
+    if (i % 2 === 0) rect(margin, y, cw, rowH, [250, 249, 246]);
+    x = margin;
+    setFont('helvetica', 'bold', 9, [26, 35, 50]);
+    text(row.label, x + 3, y + 6); x += colW[0];
+    setFont('helvetica', 'normal', 9, [52, 66, 86]);
+    text(row.val, x + 3, y + 6); x += colW[1];
+    text(row.norm, x + 3, y + 6); x += colW[2];
+    setFont('helvetica', 'bold', 9, row.ok ? [0, 107, 107] : [184, 92, 12]);
+    text(row.ok ? 'On track' : 'Below ref.', x + 3, y + 6);
+    y += rowH;
+  });
+  y += 4;
+  if (est) {
+    setFont('helvetica', 'italic', 8, [107, 123, 143]);
+    text('Reference values for this age band (under 60) are extrapolated estimates — see methodology note below.', margin, y);
+    y += 8;
+  }
+  y += 4;
+
+  doc.setDrawColor(232, 230, 225); doc.line(margin, y, W - margin, y); y += 8;
+
+  // OVERALL STATUS
+  const overallOk = rows.every(r2 => r2.ok);
+  setFont('helvetica', 'bold', 11, [0, 144, 144]);
+  text('Overall Interpretation', margin, y); y += 6;
+  setFont('helvetica', 'normal', 9, [52, 66, 86]);
+  const interp = overallOk
+    ? 'All four measures meet or exceed the age/sex reference midpoint. This profile suggests preserved functional independence across aerobic capacity, lower-body power, dynamic balance, and grip strength.'
+    : 'One or more measures fall below the age/sex reference midpoint. Prioritize the flagged area(s) above for the next 4-week training block, and re-test to confirm progress.';
+  const interpWrapped = doc.splitTextToSize(interp, cw);
+  doc.text(interpWrapped, margin, y);
+  y += interpWrapped.length * 4.5 + 8;
+
+  ensureRoom(60);
+  doc.setDrawColor(232, 230, 225); doc.line(margin, y, W - margin, y); y += 8;
+
+  // METHODOLOGY / SOURCES
+  setFont('helvetica', 'bold', 10, [0, 144, 144]);
+  text('Reference Sources & Methodology', margin, y); y += 6;
+  setFont('helvetica', 'normal', 7.5, [107, 123, 143]);
+  const sourceNote = 'Six-Minute Walk Test: Enright & Sherrill (1998); ATS/ERS Technical Standard (2014). 30-Second Sit-to-Stand: Rikli & Jones, Senior Fitness Test (1999; 2013). Timed Up-and-Go: Bohannon, descriptive meta-analysis (2006); elevated fall-risk cutoff >=12 s (Shumway-Cook et al., 2000). Handgrip Strength: Dodds et al., pooled normative data from twelve British studies (2014); low-strength (probable sarcopenia) cutoff per EWGSOP2 (Cruz-Jentoft et al., 2019). Values are population reference midpoints for screening comparison, consistent with the functional/frailty assessment approach in ACSM\'s Guidelines for Exercise Testing and Prescription -- not diagnostic cutoffs. Reference ranges for ages 40-59 are extrapolated from adjacent decades; primary literature for these instruments is validated chiefly for ages 60+.';
+  const noteWrapped = doc.splitTextToSize(sourceNote, cw);
+  doc.text(noteWrapped, margin, y);
+  y += noteWrapped.length * 3.6 + 8;
+
+  ensureRoom(30);
+  // DISCLAIMER
+  doc.setDrawColor(232, 230, 225); doc.line(margin, y, W - margin, y); y += 6;
+  rect(margin, y, cw, 20, [250, 244, 228], [237, 228, 195]);
+  setFont('helvetica', 'bold', 8, [160, 126, 50]);
+  text('Clinical Disclaimer', margin + 3, y + 6);
+  setFont('helvetica', 'normal', 7, [160, 126, 50]);
+  const disc = doc.splitTextToSize('This report is for educational and functional-tracking purposes only and is not a substitute for individualized clinical exercise testing or medical evaluation. Consult a qualified healthcare provider before beginning any exercise program, especially following a medical event, surgery, or illness.', cw - 6);
+  doc.text(disc, margin + 3, y + 11);
+  y += 26;
+
+  // FOOTER on last page
+  rect(0, H - 16, W, 16, [26, 35, 50]);
+  setFont('helvetica', 'normal', 8, [107, 123, 143]);
+  text('Muscle-Meta Matrix™  |  Randy Bauer PT  |  Functional Assessment Report', W / 2, H - 9, { align: 'center' });
+  setFont('helvetica', 'normal', 7, [107, 123, 143]);
+  text('Generated ' + new Date().toLocaleDateString(), margin, H - 9);
+  text('musclemeta.com', W - margin, H - 9, { align: 'right' });
+
+  const safeName = (r.name || 'client').replace(/[^a-z0-9]+/gi, '_');
+  doc.save(`MM_Functional_Assessment_${safeName}_${r.date}.pdf`);
+}
+
+// =========================================================================
+// INIT
+// =========================================================================
+window.onload = function() {
+  document.getElementById('client-date').value = new Date().toISOString().slice(0,10);
+  updateAllNorms();
+  loadHistory();
+};
+</script>
+</body>
+</html>
